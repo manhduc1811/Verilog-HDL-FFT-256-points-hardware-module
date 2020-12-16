@@ -1,14 +1,17 @@
 module ROM_128(
-input clk,
-input in_valid,
-input rst_n,
-output reg [23:0] w_r,
-output reg [23:0] w_i,
-output reg[1:0] state
+	input clk,
+	input in_valid,
+	input rst_n,
+	output reg [23:0] w_r,
+	output reg [23:0] w_i,
+	output reg[1:0] state
 );
-
+////////////////////////////////////////////
+// Internal signals
 reg valid,next_valid;
 reg [8:0] count,next_count;
+////////////////////////////////////////////
+// Next state logic
 always @(*) begin
     if(in_valid || valid)next_count = count + 1;
     else next_count = count;
@@ -660,7 +663,7 @@ always @(*) begin
 	9'd383: begin 
 	 w_r = 24'b 111111111111111100000000;
 	 w_i = 24'b 111111111111111111111010;
-	 next_valid = 1'b1;
+	 next_valid = 1'b0;
 	 end
 	default: begin 
 	 w_r = 24'b 000000000000000100000000;
@@ -669,7 +672,8 @@ always @(*) begin
 	 end
 	endcase
 end
-
+////////////////////////////////////////////
+// State register
 always@(posedge clk or negedge rst_n)begin
     if(~rst_n)begin
         count <= 0;

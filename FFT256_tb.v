@@ -1,23 +1,19 @@
 module FFT256_tb;
-
 	parameter 					FFT_size		= 256;
 	parameter 					IN_width		= 12;
 	parameter 					OUT_width		= 16;
-	parameter 					latency_limit	= 516;
-
 	parameter 					cycle			= 10.0;
-	
-	integer 					j, latency;
-   reg signed	[IN_width-1:0] int_r [0:FFT_size-1];
-   reg signed	[IN_width-1:0] int_i [0:FFT_size-1];
+	integer 					j;
+    reg signed	[IN_width-1:0]  int_r [0:FFT_size-1];
+    reg signed	[IN_width-1:0]  int_i [0:FFT_size-1];
 	reg 						clk, rst_n, in_valid;
 	wire 						out_valid;
 	reg signed [IN_width-1:0] 	din_r, din_i;
 	wire signed [OUT_width-1:0] dout_r, dout_i;
-
+////////////////////////////////////////////
 	always #(cycle/2.0) 
 		clk = ~clk;
-
+////////////////////////////////////////////
 	FFT256 uut_FFT256(
 		.clk(clk),
 		.rst_n(rst_n),
@@ -28,7 +24,7 @@ module FFT256_tb;
 		.dout_r(dout_r),
 		.dout_i(dout_i)
 	);
-	
+////////////////////////////////////////////	
 	initial begin
 		int_r[0] =  0;
 		int_r[1] =  260;
@@ -545,45 +541,33 @@ module FFT256_tb;
 		int_i[254] =  0;
 		int_i[255] =  0;
 	end
-	
+////////////////////////////////////////////	
 	initial begin
-		clk = 0;
-		rst_n = 1;
-		in_valid = 0;
-
+		clk          = 0;
+		rst_n        = 1;
+		in_valid     = 0;
 		@(negedge clk);
-		@(negedge clk) 
-			rst_n = 0;
-		@(negedge clk) 
-			rst_n = 1;
+		@(negedge clk) rst_n = 0;
+		@(negedge clk) rst_n = 1;
 		@(negedge clk);
-
-		for(j=0;j<FFT_size;j=j+1) 
-		begin
+		////////////////////////
+		for(j=0;j<FFT_size;j=j+1) begin
 			@(negedge clk);
 			in_valid 	= 1;
 			din_r 		= int_r[j];
 			din_i 		= int_i[j];
 		end
-		@(negedge clk) 
-			in_valid = 0;
-
-		for(j=0;j<FFT_size;j=j+1) 
-		begin
-			while(!out_valid) 
-			begin
-				@(negedge clk) 
-					latency = latency + 1;
-				if(latency > latency_limit) 
-				begin
-					$display("Latency too long (> %0d cycles)", latency_limit);
-					$stop;
-				end
-			end	
-			@(negedge clk);
+		@(negedge clk) in_valid = 0;
+		////////////////////////
+		////////////////////////
+		for(j=0;j<FFT_size;j=j+1) begin
+			while(!out_valid) begin
+				@(negedge clk); 
+			end
+		@(negedge clk);	
 		end
+		///////////////////////
+		///////////////////////		
 		$stop;
 	end
 endmodule
-	
-
